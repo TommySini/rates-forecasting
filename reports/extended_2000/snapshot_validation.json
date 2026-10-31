@@ -1,0 +1,21 @@
+{
+  "meeting_id": "FOMC-2001-01-31",
+  "status": "passed",
+  "observed_features": 12,
+  "included_features": [
+    "policy_midpoint",
+    "previous_scheduled_bps",
+    "days_since_policy_change",
+    "cpi_yoy",
+    "core_cpi_yoy",
+    "core_cpi_3m_ann",
+    "payroll_1m",
+    "payroll_3m_mean",
+    "unemployment",
+    "unemployment_3m_change",
+    "ip_3m_pct",
+    "macro_max_age_days"
+  ],
+  "manual_review": "docs/extended_2000.md",
+  "snapshot_sha256": "230280fb3d15ace7c3ca8924d071a27bae0727be3584aca7b1156e178d5b317c"
+}

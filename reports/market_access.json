@@ -1,0 +1,26 @@
+{
+  "audited_at": "2026-10-30T23:34:05.662360+00:00",
+  "requests": [
+    {
+      "platform": "Kalshi",
+      "event": "KXFEDDECISION-24SEP",
+      "contracts_returned": 0,
+      "retrieved_at": "2026-10-30T23:07:26.367534+00:00",
+      "cache_id": "5950548a63ba29e276e94d6dfecff425aa082d747235a0bb37d8d3a844721186"
+    },
+    {
+      "platform": "Kalshi",
+      "event": "KXFEDDECISION-25SEP",
+      "contracts_returned": 5,
+      "retrieved_at": "2026-10-30T23:07:26.570525+00:00",
+      "cache_id": "e4a1d022b0f05bececf4ef6c4ae779f981b268eb65dd8e240bdedbab4b7574f2"
+    },
+    {
+      "platform": "Polymarket",
+      "event": "fed-interest-rates-september-2024",
+      "events_returned": 1,
+      "retrieved_at": "2026-10-30T23:06:19.452052+00:00",
+      "cache_id": "63528cac5ea55626bee0ed9affd04b4160800d7c772336e91c7e7dbff2269917"
+    }
+  ]
+}

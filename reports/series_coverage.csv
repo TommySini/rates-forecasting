@@ -1,0 +1,10 @@
+series_id,title,units,frequency,seasonal_adjustment,observation_start,observation_end,earliest_vintage,latest_vintage_in_audit,vintage_count,source_url
+CPIAUCSL,Consumer Price Index for All Urban Consumers: All Items in U.S. City Average,Index 1982-1984=100,Monthly,Seasonally Adjusted,1947-01-01,2026-09-01,1972-07-21,2025-12-18,660,https://fred.stlouisfed.org/series/CPIAUCSL
+CPILFESL,Consumer Price Index for All Urban Consumers: All Items Less Food and Energy in U.S. City Average,Index 1982-1984=100,Monthly,Seasonally Adjusted,1957-01-01,2026-09-01,1996-12-12,2025-12-18,367,https://fred.stlouisfed.org/series/CPILFESL
+PAYEMS,"All Employees, Total Nonfarm",Thousands of Persons,Monthly,Seasonally Adjusted,1939-01-01,2026-09-01,1955-05-06,2025-12-16,850,https://fred.stlouisfed.org/series/PAYEMS
+UNRATE,Unemployment Rate,Percent,Monthly,Seasonally Adjusted,1948-01-01,2026-09-01,1960-03-15,2025-12-16,790,https://fred.stlouisfed.org/series/UNRATE
+ICSA,Initial Claims,Number,"Weekly, Ending Saturday",Seasonally Adjusted,1967-01-07,2026-10-24,2009-05-28,2025-12-31,861,https://fred.stlouisfed.org/series/ICSA
+DGS3MO,"Market Yield on U.S. Treasury Securities at 3-Month Constant Maturity, Quoted on an Investment Basis",Percent,Daily,Not Seasonally Adjusted,1981-09-01,2026-10-29,2005-06-28,2025-12-31,4932,https://fred.stlouisfed.org/series/DGS3MO
+DGS2,"Market Yield on U.S. Treasury Securities at 2-Year Constant Maturity, Quoted on an Investment Basis",Percent,Daily,Not Seasonally Adjusted,1976-06-01,2026-10-29,2005-06-28,2025-12-31,4933,https://fred.stlouisfed.org/series/DGS2
+DGS10,"Market Yield on U.S. Treasury Securities at 10-Year Constant Maturity, Quoted on an Investment Basis",Percent,Daily,Not Seasonally Adjusted,1962-01-02,2026-10-29,2005-06-28,2025-12-31,4932,https://fred.stlouisfed.org/series/DGS10
+INDPRO,Industrial Production: Total Index,Index 2017=100,Monthly,Seasonally Adjusted,1919-01-01,2026-09-01,1927-01-26,2025-12-23,1214,https://fred.stlouisfed.org/series/INDPRO

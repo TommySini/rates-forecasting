@@ -1,0 +1,14 @@
+# Original releases inspected through official BLS archive pages. These times
+# annotate provenance; the primary available_at rule remains conservatively lagged.
+'2001-01-05':
+  series: [PAYEMS, UNRATE]
+  published_at: '2001-01-05T13:30:00Z'
+  source_url: https://www.bls.gov/news.release/History/empsit_01052001.txt
+'2019-07-05':
+  series: [PAYEMS, UNRATE]
+  published_at: '2019-07-05T12:30:00Z'
+  source_url: https://www.bls.gov/news.release/archives/empsit_07052019.htm
+'2019-07-11':
+  series: [CPIAUCSL, CPILFESL]
+  published_at: '2019-07-11T12:30:00Z'
+  source_url: https://www.bls.gov/news.release/archives/cpi_07112019.htm

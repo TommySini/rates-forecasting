@@ -1,0 +1,40 @@
+{
+  "status": "passed",
+  "sample_start": "2006-01-31",
+  "sample_end": "2025-12-10",
+  "meetings": 159,
+  "candidate_features": 19,
+  "model_features": 17,
+  "class_counts": {
+    "hold": 118,
+    "hike": 24,
+    "cut": 17
+  },
+  "training_meetings": 56,
+  "development_meetings": 48,
+  "holdout_meetings": 55,
+  "missing_model_feature_cells": 5,
+  "unknown_decision_publication_times": 80,
+  "intervening_unscheduled_changes": 0,
+  "unknown_intervening_flags": 0,
+  "input_lineage_rows": 6626,
+  "input_availability_methods": {
+    "next_business_day_18ET": 248,
+    "alfred_vintage_plus_1_business_day_18ET": 6149,
+    "stated_release_time": 229
+  },
+  "checks": [
+    "unique meeting/horizon",
+    "feature/input availability <= issuance",
+    "forecast < decision/label availability",
+    "target equals sourced announcement label",
+    "complete feature lineage",
+    "explicit missing values"
+  ],
+  "limitations": [
+    "Archive-date uncertainty persists under conservative lag",
+    "Historical schedules are retrospective; not separately archived at each issuance",
+    "Early announcement times remain unknown; training eligibility uses conservative next-day lag",
+    "Cancelled meetings have no cut/hold/hike target and remain in the exclusions ledger"
+  ]
+}

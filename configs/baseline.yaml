@@ -1,0 +1,39 @@
+sample:
+  calendar_start: 1994
+  start: '2006-01-01'
+  end: '2025-12-31'
+  development_start: '2013-01-01'
+  holdout_start: '2019-01-01'
+  snapshot: '2019-07-31'
+  minimum_train_meetings: 40
+availability:
+  timezone: America/New_York
+  forecast_hour: 18
+  horizon_calendar_days: 7
+  unknown_release_lag_business_days: 1
+  sensitivity_lag_business_days: 2
+series:
+  CPIAUCSL: {units: 'index (vintage-specific base)', frequency: monthly, stale_days: 100}
+  CPILFESL: {units: 'index (vintage-specific base)', frequency: monthly, stale_days: 100}
+  PAYEMS: {units: 'thousands of persons', frequency: monthly, stale_days: 100}
+  UNRATE: {units: 'percent', frequency: monthly, stale_days: 100}
+  ICSA: {units: 'persons', frequency: weekly, stale_days: 28}
+  DGS3MO: {units: 'percent', frequency: daily, stale_days: 10}
+  DGS2: {units: 'percent', frequency: daily, stale_days: 10}
+  DGS10: {units: 'percent', frequency: daily, stale_days: 10}
+  INDPRO: {units: 'index (vintage-specific base)', frequency: monthly, stale_days: 100}
+models:
+  excluded_features: [claims_4w_mean, claims_4w_change_pct]
+  frequency_alpha: 1.0
+  logistic_C: [0.1, 1.0]
+  tree_l2: [1.0, 10.0]
+  tree_max_depth: 2
+  tree_max_iter: 80
+  tree_min_samples_leaf: 15
+  tree_learning_rate: 0.05
+evaluation:
+  seed: 20261030
+  bootstrap_replicates: 1000
+  block_length_meetings: 8
+  calibration_bins: 5
+  probability_clip: 0.000000000000001

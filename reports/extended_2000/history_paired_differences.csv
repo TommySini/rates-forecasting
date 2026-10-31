@@ -1,0 +1,10 @@
+model,reference,n,mean_brier_difference,lower_95,upper_95,block_length,method,forecast_model
+expanded,control_2006,26,-0.035597632742579884,-0.10330651407113822,0.02202756333091786,8,paired circular moving-block bootstrap; descriptive,frequency
+omit_2001_fixed_settings,control_2006,26,-0.018716451157574206,-0.07039256327006156,0.024720973580953938,8,paired circular moving-block bootstrap; descriptive,frequency
+omit_2001_fixed_settings,expanded,26,0.016881181585005678,-0.00584945326855425,0.03811396803096789,8,paired circular moving-block bootstrap; descriptive,frequency
+expanded,control_2006,26,-0.01453735592649778,-0.10162787374725123,0.07303682901563326,8,paired circular moving-block bootstrap; descriptive,logistic
+omit_2001_fixed_settings,control_2006,26,0.005580476906591051,-0.060939972896265314,0.05769686675608653,8,paired circular moving-block bootstrap; descriptive,logistic
+omit_2001_fixed_settings,expanded,26,0.020117832833088826,-0.034918795655296195,0.06721874658876793,8,paired circular moving-block bootstrap; descriptive,logistic
+expanded,control_2006,26,-0.050134323344473083,-0.23526239641602048,0.1621690074495263,8,paired circular moving-block bootstrap; descriptive,trees
+omit_2001_fixed_settings,control_2006,26,-0.01651370648445877,-0.1919627428032932,0.19874772364376003,8,paired circular moving-block bootstrap; descriptive,trees
+omit_2001_fixed_settings,expanded,26,0.03362061686001431,-0.0015384054292827318,0.0649285270393755,8,paired circular moving-block bootstrap; descriptive,trees

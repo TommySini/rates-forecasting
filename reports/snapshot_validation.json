@@ -1,0 +1,7 @@
+{
+  "meeting_id": "FOMC-2019-07-31",
+  "status": "passed",
+  "observed_features": 19,
+  "manual_review": "docs/snapshot_review.md",
+  "snapshot_sha256": "19eb744a72d2cc0aea18fd90529d84dc19b2bb38970f9c3cac44a2fc7fef0426"
+}
