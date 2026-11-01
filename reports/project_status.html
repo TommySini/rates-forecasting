@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Fed Decision Forecasting</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap">
+<style>
+/* Layout: one reading column (~44rem) with full-width figures; sections divided by quiet rules, data set in mono. */
+:root {
+  --bg: #f5f7f9;
+  --surface: #ffffff;
+  --fg: #17202a;
+  --muted: #586473;
+  --line: #dbe1e7;
+  --accent: #0d5a77;
+  --accent-soft: #e2eef3;
+  --cut: #2557d6;
+  --hold: #5f6870;
+  --hike: #b9531a;
+  --good: #1d7347;
+  --track: #e8ecf0;
+  --display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e1319; --surface: #151c24; --fg: #e5eaf0; --muted: #9aa6b4; --line: #29323d;
+    --accent: #62b4d4; --accent-soft: #15303b; --cut: #7aa2ff; --hold: #a0a9b1; --hike: #f08c50;
+    --good: #52c48c; --track: #222b35; color-scheme: dark;
+  }
+}
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--body);
+  font-size: 1rem; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 2.5rem 4rem;
+}
+main { max-width: 46rem; margin: 0 auto; display: grid; gap: 3rem; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; line-height: 1.2; margin: 0; }
+h1 { font-size: clamp(2rem, 5vw, 2.6rem); font-weight: 700; }
+h2 { font-size: 1.5rem; font-weight: 600; }
+h3 { font-size: 1.1rem; font-weight: 600; }
+p { margin: 0; max-width: 65ch; }
+a { color: var(--accent); text-underline-offset: 2px; }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+.eyebrow { font-family: var(--mono); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+section { display: grid; gap: 1rem; padding-top: 2rem; border-top: 1px solid var(--line); }
+header { display: grid; gap: 1rem; }
+.lede { font-size: 1.15rem; color: var(--fg); }
+.meta { color: var(--muted); font-size: .9rem; }
+.summary { display: grid; gap: .6rem; margin: 0; padding: 1.1rem 1.25rem; list-style: none; background: var(--accent-soft); border-radius: 6px; }
+.summary li { display: grid; grid-template-columns: 7.5rem 1fr; gap: .75rem; align-items: baseline; }
+.summary b { font-family: var(--mono); font-weight: 500; font-size: .8rem; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); }
+.facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.fact { background: var(--surface); padding: .9rem 1rem; display: grid; gap: .15rem; }
+.fact .num { font-family: var(--mono); font-size: 1.5rem; font-weight: 500; font-variant-numeric: tabular-nums; }
+.fact .lbl { font-size: .8rem; color: var(--muted); line-height: 1.35; }
+.split { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; font-size: .9rem; color: var(--muted); }
+.chip { display: inline-flex; align-items: center; gap: .35rem; font-family: var(--mono); font-size: .78rem; padding: .1rem .5rem; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); }
+.dot { width: .55rem; height: .55rem; border-radius: 50%; display: inline-block; }
+.dot.cut { background: var(--cut); } .dot.hold { background: var(--hold); } .dot.hike { background: var(--hike); }
+ul.plain { margin: 0; padding-left: 1.2rem; display: grid; gap: .5rem; }
+ul.plain li { max-width: 65ch; }
+figure { margin: 0; display: grid; gap: .75rem; padding: 1.25rem; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; }
+figcaption { font-size: .85rem; color: var(--muted); }
+.chart { display: grid; gap: .45rem; }
+.row { display: grid; grid-template-columns: minmax(0, 13rem) minmax(0, 1fr) 3.4rem; gap: .75rem; align-items: center; font-size: .88rem; }
+.row .name { min-width: 0; line-height: 1.3; }
+.row .name small { display: block; color: var(--muted); font-size: .76rem; }
+.track { position: relative; height: .8rem; background: var(--track); border-radius: 2px; }
+.bar { position: absolute; inset: 0 auto 0 0; background: var(--hold); border-radius: 2px; }
+.bar.best { background: var(--accent); }
+.bar.market { background: var(--good); }
+.val { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; font-size: .85rem; }
+.row.best .name, .row.best .val { font-weight: 600; }
+.axis { display: grid; grid-template-columns: minmax(0, 13rem) minmax(0, 1fr) 3.4rem; gap: .75rem; font-family: var(--mono); font-size: .7rem; color: var(--muted); }
+.ticks { position: relative; height: 1rem; border-top: 1px solid var(--line); }
+.ticks span { position: absolute; top: .15rem; transform: translateX(-50%); }
+.ticks span:first-child { transform: none; }
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 32rem; }
+th, td { padding: .6rem .8rem; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--mono); font-weight: 500; font-size: .74rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+tr:last-child td { border-bottom: 0; }
+td.n { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+th.n { text-align: right; }
+td strong { font-weight: 600; }
+ol.steps { margin: 0; padding: 0; list-style: none; display: grid; gap: .9rem; counter-reset: step; }
+ol.steps li { counter-increment: step; display: grid; grid-template-columns: 2rem minmax(0, 1fr); gap: .75rem; }
+ol.steps li::before { content: counter(step); font-family: var(--mono); font-size: .85rem; color: var(--accent); border: 1px solid var(--accent); border-radius: 50%; width: 1.7rem; height: 1.7rem; display: grid; place-items: center; }
+.step-body { display: grid; gap: .25rem; min-width: 0; }
+.step-head { display: flex; flex-wrap: wrap; gap: .5rem; align-items: baseline; }
+.owner { font-family: var(--mono); font-size: .72rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.step-body p { color: var(--muted); font-size: .92rem; }
+dl.gloss { margin: 0; display: grid; grid-template-columns: minmax(0, 10rem) minmax(0, 1fr); gap: .6rem 1.25rem; }
+dl.gloss dt { font-weight: 600; }
+dl.gloss dd { margin: 0; color: var(--muted); }
+footer { color: var(--muted); font-size: .85rem; display: grid; gap: .4rem; padding-top: 2rem; border-top: 1px solid var(--line); }
+@media (max-width: 640px) {
+  .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .row, .axis { grid-template-columns: minmax(0, 8.5rem) minmax(0, 1fr) 3rem; }
+  .summary li { grid-template-columns: 1fr; gap: .1rem; }
+  dl.gloss { grid-template-columns: 1fr; gap: .15rem; }
+  dl.gloss dd { margin-bottom: .6rem; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+</style>
+</head>
+<body class="auto">
+<main>
+  <header>
+    <span class="eyebrow">Research status · October 31, 2026</span>
+    <h1>Fed Decision Forecasting</h1>
+    <p class="lede">Can a model that understands the economy predict whether the Federal Reserve will cut, hold or hike, and ever do better than prediction markets?</p>
+    <ul class="summary">
+      <li><b>Best model</b><span>A five-number model reading the Fed's last move and Treasury yield spreads. It beats every larger model we tried on the same test meetings.</span></li>
+      <li><b>Markets</b><span>One week before a decision, Kalshi and Polymarket are still about ten times more accurate.</span></li>
+      <li><b>Next</b><span>Forecast one to three months ahead, where markets are less certain, and bring in fed funds futures back to 1988.</span></li>
+    </ul>
+    <p class="meta">Code and detailed reports: <a href="https://github.com/TommySini/rates-forecasting">github.com/TommySini/rates-forecasting</a>. All results are exploratory research, not trading advice.</p>
+  </header>
+
+  <section aria-labelledby="built">
+    <span class="eyebrow">What exists</span>
+    <h2 id="built">The data and the rules</h2>
+    <div class="facts">
+      <div class="fact"><span class="num">207</span><span class="lbl">scheduled Fed meetings, Feb 2000 to Dec 2025</span></div>
+      <div class="fact"><span class="num">27</span><span class="lbl">cuts among them, with 40 hikes and 140 holds</span></div>
+      <div class="fact"><span class="num">26</span><span class="lbl">test meetings, Nov 2022 to Dec 2025</span></div>
+      <div class="fact"><span class="num">7 days</span><span class="lbl">ahead: each forecast is made at 6 p.m. New York time a week before the decision</span></div>
+    </div>
+    <p>Every forecast uses only what was known at that moment. Economic data comes from archives of past data versions, so a revised jobs number never leaks into an earlier forecast. Treasury yields before mid-2005 are taken as never revised; spot checks match the Fed's original 2001 releases exactly. Each model is refit before every meeting using only decisions already announced, and every experiment's success test was written down before its results were computed.</p>
+    <div class="split">
+      <span>Test meetings:</span>
+      <span class="chip"><span class="dot hold"></span>14 holds</span>
+      <span class="chip"><span class="dot hike"></span>6 hikes</span>
+      <span class="chip"><span class="dot cut"></span>6 cuts</span>
+    </div>
+  </section>
+
+  <section aria-labelledby="results">
+    <span class="eyebrow">Results</span>
+    <h2 id="results">How the models score</h2>
+    <p>Scores use the Brier score: the squared gap between the probabilities given and what happened, averaged over meetings. Lower is better. Zero is perfect; always guessing the historical mix of decisions scores 0.637.</p>
+    <figure>
+      <div class="chart" role="list" aria-label="Brier score by model on the 26 test meetings">
+        <div class="row best" role="listitem"><span class="name">Last move + yield spreads<small>best model, 5 numbers</small></span><span class="track"><span class="bar best" style="width:36.0%"></span></span><span class="val">0.252</span></div>
+        <div class="row" role="listitem"><span class="name">Same + 1-month bill<small>6 numbers</small></span><span class="track"><span class="bar" style="width:40.7%"></span></span><span class="val">0.285</span></div>
+        <div class="row" role="listitem"><span class="name">Repeat the last move<small>3 numbers</small></span><span class="track"><span class="bar" style="width:49.0%"></span></span><span class="val">0.343</span></div>
+        <div class="row" role="listitem"><span class="name">Taylor-rule model<small>textbook policy rule, 7 numbers</small></span><span class="track"><span class="bar" style="width:49.0%"></span></span><span class="val">0.343</span></div>
+        <div class="row" role="listitem"><span class="name">Boosted trees<small>12 economic and policy inputs</small></span><span class="track"><span class="bar" style="width:60.7%"></span></span><span class="val">0.425</span></div>
+        <div class="row" role="listitem"><span class="name">Boosted trees with yields<small>17 inputs</small></span><span class="track"><span class="bar" style="width:61.7%"></span></span><span class="val">0.432</span></div>
+        <div class="row" role="listitem"><span class="name">Logistic regression<small>12 inputs</small></span><span class="track"><span class="bar" style="width:72.6%"></span></span><span class="val">0.508</span></div>
+        <div class="row" role="listitem"><span class="name">First world-model pilot<small>hidden economy factors</small></span><span class="track"><span class="bar" style="width:72.9%"></span></span><span class="val">0.510</span></div>
+        <div class="row" role="listitem"><span class="name">Historical frequency<small>no inputs</small></span><span class="track"><span class="bar" style="width:91.0%"></span></span><span class="val">0.637</span></div>
+      </div>
+      <div class="axis" aria-hidden="true"><span></span><span class="ticks"><span style="left:0%">0</span><span style="left:28.57%">0.2</span><span style="left:57.14%">0.4</span><span style="left:85.71%">0.6</span></span><span></span></div>
+      <figcaption>Brier score on the same 26 test meetings, November 2022 to December 2025.</figcaption>
+    </figure>
+
+    <h3>At turning points</h3>
+    <p>The hardest calls are the first move after a pause. Here is the probability each model gave to what actually happened.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Meeting</th><th>Outcome</th><th class="n">Repeat last move</th><th class="n">Last move + spreads</th><th class="n">Boosted trees</th></tr></thead>
+        <tbody>
+          <tr><td>July 2023</td><td><span class="chip"><span class="dot hike"></span>hike after a pause</span></td><td class="n">11%</td><td class="n">26%</td><td class="n"><strong>45%</strong></td></tr>
+          <tr><td>September 2024</td><td><span class="chip"><span class="dot cut"></span>first cut</span></td><td class="n">10%</td><td class="n"><strong>47%</strong></td><td class="n">13%</td></tr>
+          <tr><td>September 2025</td><td><span class="chip"><span class="dot cut"></span>cut after a pause</span></td><td class="n">10%</td><td class="n"><strong>30%</strong></td><td class="n">19%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Across the 14 meetings that came right after a hold, the yield-spread model scores 0.198 against 0.362 for repeating the last move.</p>
+
+    <h3>Against prediction markets</h3>
+    <figure>
+      <div class="chart" role="list" aria-label="Brier score on the 10 meetings with Kalshi prices">
+        <div class="row" role="listitem"><span class="name">Kalshi</span><span class="track"><span class="bar market" style="width:5.0%"></span></span><span class="val">0.035</span></div>
+        <div class="row best" role="listitem"><span class="name">Our best model</span><span class="track"><span class="bar best" style="width:45.7%"></span></span><span class="val">0.320</span></div>
+        <div class="row" role="listitem"><span class="name">Repeat the last move</span><span class="track"><span class="bar" style="width:53.3%"></span></span><span class="val">0.373</span></div>
+        <div class="row" role="listitem"><span class="name">Boosted trees with yields</span><span class="track"><span class="bar" style="width:56.1%"></span></span><span class="val">0.393</span></div>
+      </div>
+      <div class="axis" aria-hidden="true"><span></span><span class="ticks"><span style="left:0%">0</span><span style="left:28.57%">0.2</span><span style="left:57.14%">0.4</span><span style="left:85.71%">0.6</span></span><span></span></div>
+      <figcaption>Brier score on the 10 test meetings where Kalshi prices could be recovered. On the 6 meetings in 2025 that also have Polymarket prices: Polymarket 0.004, Kalshi 0.006, our model 0.318.</figcaption>
+    </figure>
+    <p>Market prices were taken at the same moment as our forecasts, never later. The gap is about information, not timing. By a week out the Fed has stopped speaking publicly (its quiet period starts about eleven days before each decision), and traders have already priced its speeches, minutes, press conferences and the news. Our models see only economic data, yields and past decisions.</p>
+  </section>
+
+  <section aria-labelledby="learned">
+    <span class="eyebrow">Findings</span>
+    <h2 id="learned">What we learned</h2>
+    <ul class="plain">
+      <li><strong>Small models win.</strong> With 207 meetings, models that learn a handful of numbers beat models that learn dozens. Tuning pushed every flexible model toward its most restricted settings.</li>
+      <li><strong>The Taylor rule was not the reason.</strong> Deliberately wrong economic starting values scored the same. The gain came from the Fed's habit of repeating its last move, which larger models had smoothed away.</li>
+      <li><strong>Yields are the strongest signal so far</strong>, especially before turning points. Much of that is the market's own forecast built into short-term yields.</li>
+      <li><strong>The 1-month bill added noise.</strong> During the May 2023 debt-ceiling standoff it priced a cut that never came, which caused most of its loss.</li>
+      <li><strong>A first economy model forecast economic data better than simple rules</strong>, but that did not carry over to Fed decisions.</li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="stuck">
+    <span class="eyebrow">Open problems</span>
+    <h2 id="stuck">Where we are stuck</h2>
+    <ul class="plain">
+      <li><strong>One week ahead, the answer is mostly public.</strong> Beating markets at this horizon with economic data alone is not realistic.</li>
+      <li><strong>Few events.</strong> 27 cuts and about ten genuine turning points since 2000. The 26 test meetings have been reused across experiments, so small differences are not proof.</li>
+      <li><strong>The best long-history market data is not in hand yet.</strong> Fed funds futures price every meeting back to 1988 but need a licensed source.</li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="next">
+    <span class="eyebrow">Plan</span>
+    <h2 id="next">Next steps</h2>
+    <ol class="steps">
+      <li><div class="step-body"><div class="step-head"><h3>Get fed funds futures, 1988 to 2025</h3><span class="owner">Data request</span></div><p>Daily prices for every contract month through Stanford's licensed data services. This gives a market forecast for about 300 meetings at any horizon.</p></div></li>
+      <li><div class="step-body"><div class="step-head"><h3>Forecast at 1 week, 1, 2 and 3 months</h3><span class="owner">Modeling</span></div><p>Rebuild the yield-spread model at each distance from the meeting to see where markets are still unsure. That is the only place an economic edge can exist.</p></div></li>
+      <li><div class="step-body"><div class="step-head"><h3>Start from the market, correct with the economy</h3><span class="owner">Modeling</span></div><p>Use the market forecast as the baseline and let economic trends make a small adjustment. With no adjustment it equals the market, so it cannot do worse.</p></div></li>
+      <li><div class="step-body"><div class="step-head"><h3>Swap in futures when they arrive</h3><span class="owner">Modeling</span></div><p>Convert futures prices to meeting probabilities with the method behind CME's FedWatch tool, check them against Kalshi, and rerun every horizon.</p></div></li>
+      <li><div class="step-body"><div class="step-head"><h3>A self-learning economy model</h3><span class="owner">World model</span></div><p>Learns trends from about 128 monthly economic series back to 1959 by predicting next month's data, then feeds a small Fed model. Built only for horizons where step 3 shows room.</p></div></li>
+      <li><div class="step-body"><div class="step-head"><h3>Pre-train on simulated economies</h3><span class="owner">World model</span></div><p>Thousands of simulated booms, recessions and turning points to make up for how few real ones exist, tested against a deliberately wrong simulator.</p></div></li>
+      <li><div class="step-body"><div class="step-head"><h3>Keep a live forecast log</h3><span class="owner">Ongoing</span></div><p>Record a forecast before every upcoming Fed meeting. Future meetings are the only clean test left.</p></div></li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="terms">
+    <span class="eyebrow">Reference</span>
+    <h2 id="terms">Terms used here</h2>
+    <dl class="gloss">
+      <dt>Brier score</dt><dd>Accuracy of probability forecasts. For each meeting, add up the squared differences between the probabilities given to cut, hold and hike and what happened, then average. Lower is better, from 0 to 2.</dd>
+      <dt>Turning point</dt><dd>A move that ends a pause: the first cut or hike after one or more holds.</dd>
+      <dt>Yield spread</dt><dd>A Treasury yield minus the Fed's current rate. When short-term yields sit below the Fed's rate, markets expect cuts.</dd>
+      <dt>Point-in-time</dt><dd>Using each number as it was known on the forecast date, before later revisions.</dd>
+      <dt>Fed funds futures</dt><dd>Exchange-traded contracts that pay out based on the average Fed rate in a month. Their prices imply the market's odds for each meeting.</dd>
+    </dl>
+  </section>
+
+  <footer>
+    <span>Prepared October 31, 2026. Historical results are exploratory: the test years have been examined repeatedly, and confirmation needs future meetings.</span>
+    <span>Source code, data rules and full reports: <a href="https://github.com/TommySini/rates-forecasting">github.com/TommySini/rates-forecasting</a></span>
+  </footer>
+</main>
+</body>
+</html>
