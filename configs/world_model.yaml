@@ -1,0 +1,17 @@
+base_config: configs/extended_2000.yaml
+baseline_run: reports/runs/extended_2000-b4a00efeac35
+world:
+  latent_dim: 2
+  ridge: 1.0
+  measurement_floor: 0.05
+  stability: 0.98
+classifier:
+  C: [0.01, 0.1, 1.0, 10.0]
+  modes: [history_logistic, noise_control, wm_mean, wm_integrated, wm_augmented]
+  history_months: 12
+  train_draws: 32
+  prediction_draws: 256
+  noise_scale: 0.1
+scenario:
+  draws: 256
+  steps: 3

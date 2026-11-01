@@ -30,6 +30,17 @@ FEATURES = [
     "macro_max_age_days",
     "financial_max_age_days",
 ]
+# Present only when the dataset configures the source series, so panels built
+# without it keep exactly the base feature set.
+OPTIONAL_FEATURES = {"yield_1m": "DGS1MO"}
+
+
+def feature_names(series):
+    return FEATURES + [f for f, sid in OPTIONAL_FEATURES.items() if sid in series]
+
+
+def panel_features(panel):
+    return FEATURES + [f for f in OPTIONAL_FEATURES if f in panel.columns]
 
 
 def json_safe(value):
@@ -54,7 +65,13 @@ def asof_observations(observations, cutoff, lag=1):
     if lag != 1:
         mapped = {x: vintage_availability(x, lag) for x in obs.vintage_start.unique()}
         obs["available_at"] = pd.to_datetime(obs.vintage_start.map(mapped), utc=True)
-        obs["availability_method"] = f"alfred_vintage_plus_{lag}_business_day_18ET"
+        method = obs.get("availability_method", pd.Series("", index=obs.index))
+        assumed = method.astype(str).str.startswith("assumed_unrevised")
+        obs["availability_method"] = np.where(
+            assumed,
+            f"assumed_unrevised_daily_obs_plus_{lag}_business_day_18ET",
+            f"alfred_vintage_plus_{lag}_business_day_18ET",
+        )
     obs = obs[obs.available_at <= cutoff]
     # Resolve versions before inspecting missing values. A missing revision is not
     # permission to reuse the previous vintage of that observation.
@@ -92,7 +109,8 @@ def make_snapshot(meeting, events, observations, series, lag=1):
     lineage, flags = [], []
     if pd.isna(meeting["decision_published_at"]):
         flags.append("decision_intraday_time_unknown")
-    values = {f: np.nan for f in FEATURES}
+    names = feature_names(series)
+    values = {f: np.nan for f in names}
     latest = {}
     for sid in series:
         part = eligible[eligible.series_id == sid]
@@ -278,7 +296,9 @@ def make_snapshot(meeting, events, observations, series, lag=1):
         "Percent change: latest four-week mean versus preceding four-week mean",
         weeks=range(8),
     )
-    for sid, name in [("DGS3MO", "yield_3m"), ("DGS2", "yield_2y"), ("DGS10", "yield_10y")]:
+    yields = [("DGS3MO", "yield_3m"), ("DGS2", "yield_2y"), ("DGS10", "yield_10y")]
+    yields += [(sid, name) for name, sid in OPTIONAL_FEATURES.items() if name in names]
+    for sid, name in yields:
         calc(name, sid, lambda v: v[0], "Latest eligible daily observation; percent")
     a, b = obs_inputs("DGS10"), obs_inputs("DGS2")
     if a and b and a[0]["observation_period"] == b[0]["observation_period"]:
@@ -301,7 +321,7 @@ def make_snapshot(meeting, events, observations, series, lag=1):
             "Maximum calendar age of latest eligible reference periods",
         )
     recorded = {x["feature"] for x in lineage}
-    for name in FEATURES:
+    for name in names:
         if name not in recorded:
             add(name, np.nan, [], "No prior eligible policy observation")
     target_time = meeting["decision_published_at"]
@@ -346,7 +366,8 @@ def validate_panel(panel, lineage, meetings):
         for item in json.loads(row.inputs_json):
             if pd.Timestamp(item["available_at"]) > row.forecast_timestamp:
                 raise ValueError("Future input hidden in feature lineage")
-    if set(lineage.feature) != set(FEATURES) or len(lineage) != len(panel) * len(FEATURES):
+    features = panel_features(panel)
+    if set(lineage.feature) != set(features) or len(lineage) != len(panel) * len(features):
         raise ValueError("Incomplete feature lineage")
 
 

@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 from rates_forecasting.evaluation.tuning import resolve_split
-from rates_forecasting.features.panel import FEATURES, intervening_change, validate_panel
+from rates_forecasting.features.panel import intervening_change, panel_features, validate_panel
 from rates_forecasting.time import forecast_time
 
 
@@ -13,6 +13,7 @@ def coverage_report(meetings, panel, lineage, config, output="reports"):
     out = Path(output)
     out.mkdir(parents=True, exist_ok=True)
     validate_panel(panel, lineage, meetings)
+    features = panel_features(panel)
     by_year = (
         panel.assign(year=panel.decision_date.str[:4])
         .groupby(["year", "target_class"])
@@ -20,7 +21,7 @@ def coverage_report(meetings, panel, lineage, config, output="reports"):
         .unstack(fill_value=0)
     )
     by_year.to_csv(out / "coverage_by_year.csv")
-    missing = panel[FEATURES].isna().sum().rename("missing_n").to_frame()
+    missing = panel[features].isna().sum().rename("missing_n").to_frame()
     missing["missing_fraction"] = missing.missing_n / len(panel)
     missing["in_primary_model"] = ~missing.index.isin(config["models"].get("excluded_features", []))
     missing.to_csv(out / "feature_missingness.csv")
@@ -59,13 +60,13 @@ def coverage_report(meetings, panel, lineage, config, output="reports"):
         for item in json.loads(text):
             method = item["availability_method"]
             methods[method] = methods.get(method, 0) + 1
-    selected = [f for f in FEATURES if f not in config["models"].get("excluded_features", [])]
+    selected = [f for f in features if f not in config["models"].get("excluded_features", [])]
     result = {
         "status": "passed",
         "sample_start": panel.decision_date.min(),
         "sample_end": panel.decision_date.max(),
         "meetings": len(panel),
-        "candidate_features": len(FEATURES),
+        "candidate_features": len(features),
         "model_features": len(selected),
         "class_counts": panel.target_class.value_counts().to_dict(),
         "training_meetings": int(

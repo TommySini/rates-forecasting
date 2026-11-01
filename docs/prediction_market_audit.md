@@ -1,5 +1,11 @@
 # Small prediction-market history audit
 
+Follow-up: the [2026-10-31 source audit](market_baseline_sources.md) resolves legacy
+identifiers and expands this original sample. A
+[computed market benchmark](../reports/market_baseline_results.md) now compares ten
+Kalshi and six reviewed Polymarket forecasts with frozen trees. The findings below
+preserve the original, narrower audit and are not the current coverage assessment.
+
 Public read-only endpoints tested 2026-10-30. Raw JSON responses are cached with
 retrieval metadata; full contract wording is in
 `data/processed/market_contract_audit.parquet`. A compact quote inventory is in

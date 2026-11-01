@@ -14,5 +14,11 @@ data/interim/*
 data/processed/*
 !data/**/.gitkeep
 reports/runs/
+reports/world_model_runs/
+reports/market_baseline_runs/
+reports/diagnostic_runs/
 artifacts/
 
+reports/policy_model_runs/
+# Per-meeting third-party market prices stay local; aggregate scores are kept.
+reports/market_overlap_*_meetings.csv

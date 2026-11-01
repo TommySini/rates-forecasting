@@ -1,0 +1,100 @@
+sample:
+  calendar_start: 1994
+  start: '2000-01-01'
+  end: '2025-12-31'
+  fractions:
+    training: 0.75
+    development: 0.125
+    test: 0.125
+  snapshot: '2001-10-02'
+  minimum_train_meetings: 40
+  snapshot_review: docs/extended_2000_bills.md
+availability:
+  timezone: America/New_York
+  forecast_hour: 18
+  horizon_calendar_days: 7
+  unknown_release_lag_business_days: 1
+  sensitivity_lag_business_days: 2
+  unrevised_daily_before_first_vintage: [DGS1MO, DGS3MO, DGS2, DGS10]
+series:
+  CPIAUCSL:
+    units: index (vintage-specific base)
+    frequency: monthly
+    stale_days: 100
+  CPILFESL:
+    units: index (vintage-specific base)
+    frequency: monthly
+    stale_days: 100
+  PAYEMS:
+    units: thousands of persons
+    frequency: monthly
+    stale_days: 100
+  UNRATE:
+    units: percent
+    frequency: monthly
+    stale_days: 100
+  INDPRO:
+    units: index (vintage-specific base)
+    frequency: monthly
+    stale_days: 100
+  DGS1MO: {units: percent, frequency: daily, stale_days: 10}
+  DGS3MO: {units: percent, frequency: daily, stale_days: 10}
+  DGS2: {units: percent, frequency: daily, stale_days: 10}
+  DGS10: {units: percent, frequency: daily, stale_days: 10}
+models:
+  excluded_features:
+  - claims_4w_mean
+  - claims_4w_change_pct
+  frequency_alpha: 1.0
+  logistic_C:
+  - 0.1
+  - 1.0
+  tree_l2:
+  - 1.0
+  - 10.0
+  tree_max_depth: 2
+  tree_max_iter: 80
+  tree_min_samples_leaf: 15
+  tree_learning_rate: 0.05
+evaluation:
+  seed: 20261030
+  bootstrap_replicates: 1000
+  block_length_meetings: 8
+  calibration_bins: 5
+  probability_clip: 1.0e-15
+  variant: extended_2000_bills
+  cut_component_weight: 2.0
+  missed_cut_cost: 2.0
+  search:
+    folds: 4
+    max_candidates: 60
+    grids:
+      frequency:
+        alpha:
+        - 0.5
+        - 1.0
+        - 2.0
+      logistic:
+        C:
+        - 0.01
+        - 0.1
+        - 1.0
+        - 10.0
+      trees:
+        max_depth:
+        - 1
+        - 2
+        - 3
+        learning_rate:
+        - 0.03
+        - 0.1
+        max_iter:
+        - 40
+        - 100
+        min_samples_leaf:
+        - 10
+        - 20
+        l2_regularization:
+        - 1.0
+        - 10.0
+dataset: extended_2000_bills

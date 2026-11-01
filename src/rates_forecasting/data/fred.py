@@ -16,6 +16,29 @@ from rates_forecasting.time import vintage_availability
 API = "https://api.stlouisfed.org/fred/"
 
 
+def assume_unrevised_before(frame, first_vintage, lag=1):
+    """Date pre-archive daily values by observation, not by ALFRED's first vintage.
+
+    Only for series configured as effectively unrevised (daily Treasury yields:
+    at most 0.05% of archived observations ever change). Each value dated before
+    the first archived vintage becomes available its observation date plus the
+    usual unknown-time lag. The ALFRED vintage is kept and the method is labeled.
+    """
+    frame = frame.copy()
+    frame["alfred_vintage_start"] = frame.vintage_start
+    mask = (frame.vintage_start == first_vintage) & (frame.observation_period < first_vintage)
+    periods = frame.loc[mask, "observation_period"]
+    frame.loc[mask, "vintage_start"] = periods
+    frame.loc[mask, "vintage_start_is_interval_bound"] = False
+    frame.loc[mask, "available_at"] = pd.Series(
+        [vintage_availability(p, lag) for p in periods], index=periods.index, dtype=object
+    )
+    frame.loc[mask, "availability_method"] = (
+        f"assumed_unrevised_daily_obs_plus_{lag}_business_day_18ET"
+    )
+    return frame
+
+
 class Fred:
     def __init__(self, cache: Cache):
         load_dotenv(".env", override=False)
@@ -58,14 +81,20 @@ class Fred:
             "source_url": f"https://fred.stlouisfed.org/series/{series_id}",
         }
 
-    def observations(self, series_id, units, start, end, realtime_end, lag=1):
+    def observations(self, series_id, units, start, end, realtime_end, lag=1, unrevised=False):
         rows = []
         windows = [("1776-07-04", realtime_end)]
+        if unrevised and not series_id.startswith("DGS"):
+            raise ValueError("The unrevised-history assumption is reviewed only for daily yields")
         if series_id.startswith("DGS"):
             # FRED JSON permits at most 2,000 vintage dates per request. Daily
             # series need real-time chunks, even with a short observation range.
             first = date.fromisoformat(self.audit_series(series_id)["earliest_vintage"])
+            first_vintage = first.isoformat()
             last = date.fromisoformat(realtime_end)
+            if unrevised:
+                # Pre-archive values come from the first archived vintage.
+                last = max(last, first)
             windows = []
             while first <= last:
                 stop = min(date(first.year + 5, first.month, first.day) - timedelta(days=1), last)
@@ -75,7 +104,10 @@ class Fred:
             rows.extend(self._interval(series_id, units, start, end, real_start, real_end, lag))
         if not rows:
             raise SourceUnavailable(f"No provably dated historical vintages for {series_id}")
-        frame = pd.DataFrame(rows).sort_values(["observation_period", "vintage_start"])
+        frame = pd.DataFrame(rows)
+        if unrevised:
+            frame = assume_unrevised_before(frame, first_vintage, lag)
+        frame = frame.sort_values(["observation_period", "vintage_start"])
         # Remove chunk-boundary carryovers when the previous record has the same
         # value. Keep the genuinely earlier availability, including missing revisions.
         kept = []
@@ -147,11 +179,15 @@ class Fred:
         return rows
 
 
-def download_observations(cache, series, start, end, realtime_end, output):
+def download_observations(cache, series, start, end, realtime_end, output, unrevised=()):
     fred = Fred(cache)
     frames = []
     for sid, spec in series.items():
-        frames.append(fred.observations(sid, spec["units"], start, end, realtime_end))
+        frames.append(
+            fred.observations(
+                sid, spec["units"], start, end, realtime_end, unrevised=sid in unrevised
+            )
+        )
         print(f"{sid}: {len(frames[-1])} vintage records", flush=True)
     frame = pd.concat(frames, ignore_index=True)
     Path(output).parent.mkdir(parents=True, exist_ok=True)

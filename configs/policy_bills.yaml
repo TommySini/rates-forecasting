@@ -1,0 +1,11 @@
+base_config: configs/extended_2000_bills.yaml
+references:
+  - {run: reports/policy_model_runs/24f35e51a919, file: predictions.parquet, models: {market_ordered: market_ordered, momentum_ordered: momentum_ordered, trees_17f: trees_17f}}
+weak_models:
+  market_1m_ordered: [previous_move, bill_1m_spread, bill_spread, two_year_spread]
+  market_1m_ordered_post2005: [previous_move, bill_1m_spread, bill_spread, two_year_spread]
+training_start:
+  market_1m_ordered_post2005: '2006-01-01'
+grids:
+  market_1m_ordered: [0.0]
+  market_1m_ordered_post2005: [0.0]

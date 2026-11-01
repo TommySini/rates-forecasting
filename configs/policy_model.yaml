@@ -1,0 +1,13 @@
+base_config: configs/extended_2000.yaml
+baseline_run: reports/runs/extended_2000-b4a00efeac35
+world_run: reports/world_model_runs/7185f66f7271
+world_models: [wm_augmented]
+priors:
+  taylor: {a_pi: 0.5, a_u: 1.0}
+  wrong: {a_pi: -0.5, a_u: -1.0}
+  sd: 0.5
+grids:
+  taylor_ordered: [0.0, 0.01, 0.03, 0.1, 0.3, 1.0]
+  taylor_wrong_prior: [0.0, 0.01, 0.03, 0.1, 0.3, 1.0]
+  ordered_free: [0.01, 0.1, 1.0, 10.0]
+  small_logistic: [0.01, 0.1, 1.0, 10.0]

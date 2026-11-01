@@ -15,7 +15,7 @@ from rates_forecasting.data.fred import Fred, download_observations
 from rates_forecasting.data.markets import audit_markets
 from rates_forecasting.evaluation.audit import coverage_report
 from rates_forecasting.evaluation.run import evaluate
-from rates_forecasting.features.panel import FEATURES, build_panel, write_snapshot_audit
+from rates_forecasting.features.panel import build_panel, feature_names, write_snapshot_audit
 from rates_forecasting.paths import dataset_path, prepare_dataset
 
 
@@ -32,10 +32,15 @@ def snapshot(cache, config):
         cutoff,
         cutoff,
         dataset_path(config, "interim", "snapshot_observations.parquet"),
+        config["availability"].get("unrevised_daily_before_first_vintage", []),
     )
     m = pd.read_parquet("data/interim/meeting_inventory.parquet")
     p, line = build_panel(m, obs, config, only=decision)
-    included = [f for f in FEATURES if f not in config["models"].get("excluded_features", [])]
+    included = [
+        f
+        for f in feature_names(config["series"])
+        if f not in config["models"].get("excluded_features", [])
+    ]
     if p[included].isna().any().any():
         raise ValueError("First snapshot incomplete; inspect before scaling")
     snapshot_path = dataset_path(config, "processed", "first_snapshot.parquet")
@@ -80,6 +85,7 @@ def panel(cache, config):
         end,
         end,
         dataset_path(config, "interim", "observations.parquet"),
+        config["availability"].get("unrevised_daily_before_first_vintage", []),
     )
     m = pd.read_parquet("data/interim/meeting_inventory.parquet")
     p, line = build_panel(m, obs, config)

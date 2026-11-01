@@ -4,6 +4,31 @@ Offline research on seven-day probabilities of the next scheduled Federal Reserv
 decision: **cut, hold, or hike**. The initial implementation uses small baselines
 and an auditable historical information set. No trading or brokerage integration.
 
+**Current benchmark direction:** market-implied probabilities are the external
+benchmark; shallow boosted trees are the statistical baseline. Standalone logistic
+regression is retired from new comparisons, with its historical experiments kept
+reproducible. The [market comparison](reports/market_baseline_results.md) recovers
+10 Kalshi forecasts and six reviewed Polymarket forecasts at the seven-day cutoff.
+Both markets outperform the unchanged trees on these small matched samples.
+See the [source/access audit](docs/market_baseline_sources.md) for CME FedWatch,
+missing market history and the exact contract assumptions.
+
+The [market-gap diagnosis](reports/market_gap_diagnosis.md) reproduces every frozen
+tree forecast, traces the September 2025 miss, and identifies different retraining
+schedules in development selection and test forecasting. Its development-only
+replay changes the preferred settings; historical forecasts remain unchanged.
+Run `uv run --frozen python scripts/diagnose_market_gap.py` for the audit artifacts.
+
+```sh
+uv run --frozen python scripts/run_market_baseline.py --offline
+uv run --frozen python scripts/verify_market_baseline.py reports/market_baseline_runs/176b1d70bbfe
+```
+
+The workspace already has the required public quote responses cached; omit
+`--offline` to download them on a fresh setup. Use the output directory printed
+by the runner if a later code/input fingerprint differs. No market API key is
+needed for this free comparison. CME access has not been purchased.
+
 Implemented: official-calendar/announcement ingestion, cached ALFRED vintage
 histories, UTC point-in-time feature lineage, chronological model selection and
 evaluation, saved probabilities/metrics/plots, dependence-aware uncertainty,
@@ -38,6 +63,46 @@ Run the snapshot and panel with `--config configs/extended_2000.yaml`, then
 matched 2006-start control and sensitivity excluding 2001 training labels.
 The [expanded-history results](reports/extended_2000_results.md) report the
 matched comparison, the 2001 sensitivity and uncertainty.
+
+The [world-model pilot](docs/world_model_pilot.md) learns two latent economic
+factors from point-in-time monthly histories and tests weighted synthetic latent
+states against the frozen expanded baselines. It preserves the same 26 real test
+meetings. [Computed results](reports/world_model_results.md): augmented Brier
+**0.5096**, ordinary logistic **0.5077**, trees **0.4248**; lower is better.
+This pilot provides no demonstrated Fed-forecast improvement. Synthetic paths
+remain explicitly labeled and do not increase the number of independent events.
+After building the extended panel and baseline, reproduce locally with:
+
+```sh
+uv run --frozen python scripts/run_world_model.py
+uv run --frozen python scripts/verify_world_model.py reports/world_model_runs/7185f66f7271
+```
+
+The script uses cached local Parquet inputs, makes no network calls, and prints
+its output directory. Use that directory for verification if a code/input change
+produces a different fingerprint. Dependencies and the original runs are preserved.
+
+The [structured reaction model](docs/structured_policy_model.md) is a seven-parameter
+ordered cut/hold/hike model with a Taylor-type rule, a zero-lower-bound rule and
+matched controls. [Computed results](reports/policy_model_results.md): Brier
+**0.343** versus **0.425** for trees, but a deliberately wrong prior scores the same
+and a post-hoc momentum-only ordered model matches it. Run
+`uv run --frozen python scripts/run_policy_model.py`, then verify with
+`scripts/verify_policy_model.py reports/policy_model_runs/14f31bd8c716`.
+
+The [yields extension](docs/extended_2000_yields.md) restores Treasury yields for
+2000–2025 (pre-June-2005 values treated as unrevised, checked against the original
+H.15 release) in a separate `extended_2000_yields` dataset. [Computed results](reports/yields_results.md):
+a five-parameter ordered model using the previous move and 3-month/2-year market
+spreads scores Brier **0.252**, versus **0.343** for momentum alone and **0.432**
+for trees with yields; after a hold, **0.198** versus **0.362**. Run with
+`scripts/run_policy_model.py configs/policy_yields.yaml`.
+
+Adding the [1-month Treasury yield](docs/extended_2000_bills.md) did not help:
+Brier **0.285** versus **0.252** without it, mostly from the May 2023 debt-ceiling
+distortion ([results](reports/bills_results.md)). The 3-month/2-year model remains
+the market anchor; fed funds futures are the next source
+([review](docs/market_expectation_sources.md)).
 
 ## Reproduce
 
@@ -94,6 +159,9 @@ small reports, source annotations, code, tests and the lockfile remain reviewabl
 | `data/processed/` | Primary/sensitivity panels, detailed lineage, first snapshot, market contract audit |
 | `reports/` | Source/coverage/missingness/exclusions, snapshot audit, verification and evaluation history |
 | `reports/runs/<variant>-<fingerprint>/` | Immutable selected settings, per-meeting predictions, model comparison, class/period results, calibration, paired uncertainty, largest errors and PNG plots |
+| `reports/world_model_runs/<fingerprint>/` | Separate world-model comparisons, chronological CV, state/input audits, synthetic provenance, macro-release diagnostics and plots |
+| `reports/market_baseline_runs/<fingerprint>/` | Market source/rule inventory, raw-quote lineage, exclusions, matched tree/market scores, sensitivities and plots |
+| `reports/policy_model_runs/<fingerprint>/` | Structured reaction-model comparisons, CV candidates, fitted parameters per test refit, verification and plots |
 
 Exact run paths and computed scores are in [baseline_results.md](reports/baseline_results.md).
 Identical completed runs are reused. Changed evaluations are logged as exploratory;
@@ -121,5 +189,5 @@ See [point-in-time rules](docs/point_in_time_policy.md),
 [announcement checks](docs/meeting_verification.md),
 [decisions](docs/decisions.md), and
 [market audit](docs/prediction_market_audit.md).
-The [research plan](docs/research_plan.md) designs a small probabilistic state-space
-extension and a later PSI-inspired experiment; neither is implemented yet.
+The [research plan](docs/research_plan.md) distinguishes the completed small
+state-space pilot from the pending release-path, structural-prior and PSI experiments.

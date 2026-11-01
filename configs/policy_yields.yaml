@@ -1,0 +1,15 @@
+base_config: configs/extended_2000_yields.yaml
+references:
+  - {run: reports/runs/extended_2000_yields-9a335a20f13e, file: predictions.parquet, models: {trees: trees_17f}}
+  - {run: reports/runs/extended_2000-b4a00efeac35, file: predictions.parquet, models: {trees: trees_12f}}
+  - {run: reports/policy_model_runs/14f31bd8c716, file: predictions.parquet, models: {taylor_ordered: taylor_ordered_12f}}
+weak_models:
+  momentum_ordered: [previous_move]
+  market_ordered: [previous_move, bill_spread, two_year_spread]
+  market_ordered_post2005: [previous_move, bill_spread, two_year_spread]
+training_start:
+  market_ordered_post2005: '2006-01-01'
+grids:
+  momentum_ordered: [0.0]
+  market_ordered: [0.0]
+  market_ordered_post2005: [0.0]

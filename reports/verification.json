@@ -8,7 +8,7 @@
     "207-meeting expansion: 48 early labels, all 12 early inputs complete, original-release January 2001 snapshot, overlapping features unchanged",
     "12 source-reviewed policy examples including ranges and emergency moves",
     "cancelled March 2020 target retained with intervening emergency change flagged",
-    "347 raw-response hashes checked; metadata excludes API keys",
+    "473 raw-response hashes checked; metadata excludes API keys",
     "all completed runs: valid probabilities, observed training labels, targets, recomputed scores, calibration counts, plot files",
     "history comparison: same 26 test meetings and 12 features; 2001 omission keeps expanded-model settings"
   ],
@@ -17,6 +17,7 @@
     "reports/runs/extended_2000-b4a00efeac35",
     "reports/runs/extended_2000_control2006-c1d9ad9b9b02",
     "reports/runs/extended_2000_no2001-44f28545c1f2",
+    "reports/runs/extended_2000_yields-9a335a20f13e",
     "reports/runs/lag2-1a1222ab4b47",
     "reports/runs/lag2-e01743e7e7c2",
     "reports/runs/primary-108c458519e0",

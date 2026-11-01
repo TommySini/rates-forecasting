@@ -22,7 +22,24 @@ does not establish reliable probabilities in every regime. Before expanding
 architecture, repair material source/label issues and establish a forward forecast
 log; genuine future decisions provide confirmation beyond reused history.
 
-## First economic world model (design only)
+## Completed first pilot
+
+The [world-model pilot](world_model_pilot.md) now implements a two-factor Gaussian
+state-space approximation, fitted to eligible monthly macro histories, and a
+regularized policy classifier. It compares latent means, probability integration,
+weighted latent-state augmentation, generic noise and a direct history control
+against the frozen expanded baselines. The same 26 real test meetings remain the
+evaluation sample. [Results](../reports/world_model_results.md) show no Fed-score
+advantage from this augmentation; macro-release diagnostics improve on persistence
+in four of five channels. All results are exploratory, without subsequent tuning.
+
+This is a limited test of state estimation and uncertainty regularization. It
+does not implement the full release-path design below, parameter uncertainty,
+structural pseudo-labels or PSI extraction. The earlier
+[research memo](world_model_research.md) is preserved as context; its original
+sample counts predate the extension to 207 meetings.
+
+## Full economic release-path model (design only)
 
 Start with a compact probabilistic state-space model, e.g. latent inflation
 pressure, labor-market slack and activity momentum. Estimate transition and

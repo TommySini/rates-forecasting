@@ -62,3 +62,50 @@ fixed-settings sensitivity removing the eight 2001 training labels. Keep all
 2001 decisions in the main experiment and avoid treating them as independent
 episodes. The January 2001 snapshot was checked against original Fed/BLS releases
 before scaling. Preserve original files through a separate dataset directory.
+
+## Structured reaction model
+
+2026-10-31, after the world-model pilot showed no Fed-forecast gain, the user
+requested step 1 of the world-model research: a small ordered Taylor-type
+reaction model with published priors. The [specification](structured_policy_model.md)
+fixed the seven-parameter model, lower-bound rule, λ grid, wrong-prior and
+free-coefficient controls, and interpretation rules before test scoring. Reuse the
+extended 155/26/26 split and development folds. Declared scipy explicitly (it was
+already locked through scikit-learn). Results and a clearly labeled post-hoc
+ablation are in [policy_model_results.md](../reports/policy_model_results.md).
+
+## Market probabilities as the external benchmark
+
+2026-10-31, the user requested retirement of standalone logistic regression and
+market-implied probabilities as another baseline. New comparisons use shallow
+boosted trees plus available market forecasts; previous models and reports remain
+reproducible. The [market protocol](market_benchmark_plan.md) fixes quote selection,
+mapping assumptions and coverage-matched scoring. The public-data implementation
+uses Kalshi target-rate thresholds and six reviewed Polymarket partitions, with
+explicit price reconciliation only inside those related exhaustive outcomes.
+CME requires a separate access decision and publication-time audit. All results
+remain exploratory, and tiny cohorts receive no misleading bootstrap intervals.
+
+## Treasury yields for 2000–2025
+
+2026-10-31, the user asked to restore yields after the structured-policy results.
+The [specification](extended_2000_yields.md) treats daily DGS3MO/DGS2/DGS10 values
+dated before ALFRED's first vintage (2005-06-28) as unrevised, available on their
+observation date plus one business day, labeled in every lineage row; code refuses
+the assumption for other series. A separate `extended_2000_yields` dataset keeps
+the original artifacts. Registered comparisons: retuned trees with yields, an
+untuned momentum-only ordered model, a momentum-plus-market-spread ordered model,
+and a 2006-start training sensitivity, scored on all 26 test meetings and the 14
+after-hold meetings. Following the user's direction, logistic regression is not
+part of the new comparison. Results: [yields_results.md](../reports/yields_results.md).
+
+## 1-month Treasury yield
+
+2026-10-31, the user chose the free 1-month bill as the first longer-history
+market signal. The [specification](extended_2000_bills.md) adds DGS1MO as an
+optional feature (present only when configured, so earlier panels are unchanged)
+in a separate `extended_2000_bills` dataset, reviews an October 2001 snapshot
+against the original H.15 release, and fixes one comparison: the market model
+with and without the 1-month spread. Result: not helpful
+([bills_results.md](../reports/bills_results.md)). Market-overlap outputs are now
+named by model run, so comparisons no longer overwrite each other.

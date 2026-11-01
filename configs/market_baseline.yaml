@@ -1,0 +1,30 @@
+# Frozen before computing market scores; prior experiments remain reproducible.
+panel: data/processed/extended_2000/panel.parquet
+meetings: data/interim/meeting_inventory.parquet
+statistical_run: reports/runs/extended_2000-b4a00efeac35
+statistical_models: [trees]
+test_start: '2022-11-02'
+test_end: '2025-12-10'
+quote_lookback_days: 7
+maximum_sample_age_hours: 24
+kalshi_maximum_spread: 0.10
+kalshi_grid_step_percent: 0.25
+polymarket_maximum_sum_error: 0.05
+probability_clip: 1.0e-15
+bootstrap_replicates: 1000
+block_length_meetings: 8
+seed: 20261031
+polymarket_reviewed_events:
+  '2025-05-07': fed-decision-in-may-2025
+  '2025-06-18': fed-decision-in-june
+  '2025-07-30': fed-decision-in-july
+  '2025-09-17': fed-decision-in-september
+  '2025-10-29': fed-decision-in-october
+  '2025-12-10': fed-decision-in-december
+polymarket_rule_sha256:
+  '2025-05-07': d5f0a79786c712218279216bd29e92a69a0ea663b0e169461f817fcf2839f712
+  '2025-06-18': df46e58614cdc98bafaea5fc79dcfbd0104c02c9075a94d3cf2cc88a0a6129b9
+  '2025-07-30': 8836fadccdc70b80acb410ecf36547a803e6e72e416a7a3c96eaf7cb8dc9af85
+  '2025-09-17': bbc38e7ee8070d6de8d5b5bc83594b4a141e17fdc24f66c4df6fe7bdf413e275
+  '2025-10-29': 7ebeaa57e701a10b99074a968f68e82d1631adaa07a3247bf9de01c402f50e6e
+  '2025-12-10': 6cb3eff8c081408f2d7cc6384dfce1900744c1ab8ea02fdb59ff085e3267d820

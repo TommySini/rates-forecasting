@@ -9,12 +9,19 @@ import pandas as pd
 from rates_forecasting.models.baselines import CLASSES
 
 
-def plots(predictions, calibration, output):
+def plots(
+    predictions, calibration, output, evaluation_label="historical holdout", calibration_note=None
+):
     output = Path(output)
     names = list(predictions.model_name.unique())
     colors = {"cut": "#2563eb", "hold": "#626b73", "hike": "#dc6a23"}
     fig, axes = plt.subplots(
-        len(names), 1, figsize=(12, 3 * len(names)), sharex=True, squeeze=False
+        len(names),
+        1,
+        figsize=(12, 3 * len(names)),
+        sharex=True,
+        squeeze=False,
+        layout="constrained",
     )
     for ax, name in zip(axes[:, 0], names):
         frame = predictions[predictions.model_name == name].sort_values("forecast_timestamp")
@@ -25,11 +32,12 @@ def plots(predictions, calibration, output):
             ax.scatter(dates[mask], [1.03] * mask.sum(), color=colors[label], s=14, marker="|")
         ax.set(ylim=(-0.03, 1.1), ylabel="Probability", title=name)
         ax.legend(ncol=3, loc="upper left")
-    fig.suptitle("Seven-day forecasts • historical holdout\nTop ticks show realized decisions")
-    fig.tight_layout()
+    fig.suptitle(f"Seven-day forecasts • {evaluation_label}\nTop ticks show realized decisions")
     fig.savefig(output / "probabilities.png", dpi=160)
     plt.close(fig)
-    fig, axes = plt.subplots(len(names), 3, figsize=(12, 3.4 * len(names)), squeeze=False)
+    fig, axes = plt.subplots(
+        len(names), 3, figsize=(12, 3.4 * len(names)), squeeze=False, layout="constrained"
+    )
     for i, name in enumerate(names):
         for j, label in enumerate(CLASSES):
             ax = axes[i, j]
@@ -62,9 +70,10 @@ def plots(predictions, calibration, output):
                 xlabel="Mean forecast",
                 ylabel="Observed frequency",
             )
-    fig.suptitle(
-        "Calibration • 5 fixed bins\n95% circular block bootstrap intervals (8 meetings); sparse bins are uncertain"
-    )
-    fig.tight_layout()
+    if calibration_note is None:
+        calibration_note = (
+            "95% circular block bootstrap intervals (8 meetings); sparse bins are uncertain"
+        )
+    fig.suptitle("Calibration • 5 fixed bins\n" + calibration_note)
     fig.savefig(output / "calibration.png", dpi=160)
     plt.close(fig)
